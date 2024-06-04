@@ -141,13 +141,15 @@ export default function Upload() {
     */
 
     const formData = new FormData();
-    formData.append('image', file);
+    if(file){
+      formData.append('image', file);
+    }else{
+      formData.append('image', '');
+    }
     formData.append('subject', sub);
     formData.append('content', text);
-    formData.append('post_region', 'string');
+    formData.append('post_region', userInfo().region1);
     formData.append('author', userId());
-
-
 
     try {
       const response = await axios.post('https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/community/post/', formData, {
@@ -155,6 +157,7 @@ export default function Upload() {
           'Content-Type': 'multipart/form-data',
         },
       });
+      console.log(formData);
       console.log('Server Response:', response.data);
     } catch (error) {
       console.error('Error uploading file:', error);
@@ -183,10 +186,15 @@ export default function Upload() {
     }
   }
 
+  const userInfo = () => {
+    const session = sessionStorage.getItem('user');
+    const user = JSON.parse(session);
+    return user.data;
+  }
+
   return (
     <Wrapper>
       <Title>
-        <div><BackButton><img src={leftlogo} /></BackButton></div>
         <TitleDiv><LogoImage src={logo} alt="Logo" /><span>게시물 등록</span></TitleDiv>
       </Title>
       
@@ -207,7 +215,7 @@ export default function Upload() {
           placeholder="자유롭게 게시물을 등록해주세요!"
         />
         <AttachFileButton htmlFor="file">
-          {file ? "사진 추가 완료! ✅" : "사진도 추가하실래요?"}
+          {file ? "사진 추가 완료! ✅" : "사진 첨부"}
         </AttachFileButton>
         <AttachFileInput
           onChange={onFileChange}

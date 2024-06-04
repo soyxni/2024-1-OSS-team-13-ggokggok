@@ -1,18 +1,19 @@
 import { createGlobalStyle } from 'styled-components';
-import reset from "styled-reset";
-
-
+import reset from 'styled-reset';
 
 const GlobalStyle = createGlobalStyle`
     ${reset}
+   
+
     @font-face {
-    font-family: "basic";
+      font-family: 'TTLaundryGothicB';
+      src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2403-2@1.0/TTLaundryGothicR.woff2') format('woff2');
+      font-weight: 700;
       font-style: normal;
-      font-weight: 100;
-      src: url("src/others/font/laundryRegular.ttf") format("truetype");
-    }
+  }
+
     body {
-        font-family: "basic";
+        font-family: 'TTLaundryGothicB', 'basicFont', Arial, sans-serif;
     }
 `;
 

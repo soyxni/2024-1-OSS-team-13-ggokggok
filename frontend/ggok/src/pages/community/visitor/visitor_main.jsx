@@ -102,7 +102,6 @@ export default function Visitor_main(){
     return (
         <Wrapper>
           <Title>
-            <div><BackButton><img src={leftlogo}/></BackButton></div>
             <TitleDiv><LogoImage src={logo} alt="Logo" /><span>{id} 지역</span></TitleDiv>
           </Title>
           
@@ -128,7 +127,7 @@ export default function Visitor_main(){
                             </div>
                             </ContentBox>
                           </Link>
-                ))): (<></>)}
+                ))): (<h1>게시글이 없습니다</h1>)}
                 </div>
             </SubTitle>
             
@@ -159,7 +158,7 @@ export default function Visitor_main(){
                             </div>
                         </div>
                       </Link>
-                ))): (<></>)}
+                ))): (<h1>게시글이 없습니다</h1>)}
                 </ContentBox2>
             </SubTitle>
 

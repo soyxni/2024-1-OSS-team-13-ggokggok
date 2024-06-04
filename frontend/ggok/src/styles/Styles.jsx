@@ -1,20 +1,21 @@
 import styled from 'styled-components';
 
 export const Wrapper = styled.div`
-  width: 100%;
-  height: 80%;
-
+  width: 400px;
+  height: 85%;
 `;
 
 export const Blank = styled.div`
-  width: 35px;
+  width: 25px;
+  margin: 0px;
 `;
 
 export const Title = styled.h1`
-  width: 100%;
+  width: 90%;
   display: flex;
   font-size: 35px;
   align-items: center;
+  text-align: center;
 `;
 
 export const SubTitle = styled.h1`
@@ -28,11 +29,12 @@ export const LogoImage = styled.img`
 `;
 
 export const TitleDiv = styled.div`
-  width: 70%;
+  width: 80%;
   align-items: center;
-
+  text-align: center;
+  display: flex;
   span { margin-left: 10px; }
-
+  div { padding-left: 34px}
   img { margin-bottom: -7px; }
 `;
 
@@ -59,17 +61,15 @@ export const MainContainer = styled.div`
 
   div {
     font-size: 24px;
-    padding: 5px 0;
+    padding: 5px 0 0 0;
   }
   
   .location {
     display: flex;
-  
   }
 
   span {
     justify-content: center;
-    
     display: flex;
     margin: 225px 0;
     font-size: 20px;
@@ -78,38 +78,34 @@ export const MainContainer = styled.div`
   
   .under {
     display: flex;
-    flex-direction: column;
     width: 100%;
   }
 
   .visit {
     font-size: 20px;
-    display: flex;
     align-items: center;
     justify-content: center;
-    text-align: left;
-    margin-top: 5px;
+    margin-top: 10px;
     padding: 10px;
+    text-align: center;
+    width: 300px;
   }
 
   .buttonContainer {
     display: flex;
-    justify-content: center;
-    
+    justify-content: flex-end;
+    margin-right: 0px;
+    width: 150px;
+    position: right;
   }
 
   .buttonContainer > div {
-    margin: 0 10px; 
-    
+    padding-right: 0px;
   }
 
-
   .locButton {
-    border-radius: 50px;
-   
     width: 50px;
     heigth: 50px;
-  
     background-color: #FFFFFF;
   }
 

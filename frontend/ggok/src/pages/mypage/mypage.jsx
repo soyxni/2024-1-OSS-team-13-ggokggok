@@ -2,28 +2,32 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Title, TitleDiv, LogoImage, Blank } from "../../styles/Styles";
-
+import { TitleDiv, LogoImage, Blank, ExtraButton } from "../../styles/Styles";
+import logo from "../../others/img/logo-icon.png";
 
 // 초기 프로필 상태 정의
 const initialProfileState = {
   username: "",
   region1: "",
   region2: "",
+  profileImage: "", // 프로필 이미지 추가
 };
 
 // 프로필 정보를 가져오는 함수
 const fetchProfileInfo = async () => {
   try {
-    const response = await axios.get(`https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/user/?myuser=1`);
+    const userData = JSON.parse(sessionStorage.getItem('user'));
+    const userId = userData ? userData.data.id : null;
+    
+    if (!userId) return null; // userId가 없으면 요청하지 않음
+
+    const response = await axios.get(`https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/user/?myuser=${userId}`);
     return response.data.data[0]; // API 응답 데이터에서 첫 번째 객체를 반환
   } catch (error) {
     console.error("Error fetching profile info:", error);
     return null;
   }
 };
-
-
 
 const LogoutBtn = styled.div`
   border: none;
@@ -32,6 +36,9 @@ const LogoutBtn = styled.div`
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
+  width: 80px;
+  padding: 0;
+  margin: 0;
 `;
 
 const ProfileWrapper = styled.div`
@@ -42,6 +49,15 @@ const ProfileWrapper = styled.div`
   margin: 10px 0 20px;
   background-color: #eaf4ec;
   padding: 15px;
+  position: relative; // 위치 설정을 위해 추가
+`;
+
+export const Title = styled.h1`
+  width: 90%;
+  display: flex;
+  font-size: 29px;
+  align-items: center;
+  text-align: center;
 `;
 
 const ProfileImage = styled.img`
@@ -120,17 +136,35 @@ const ContentBox2 = styled.div`
 const ContentImg = styled.img`
   width: 95%;
   height: 50px;
-  width: 50px;
   border-radius: 10px;
   margin: 0 10px 0 0;
+`;
+
+const EditRegionButton = styled.button`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #A3CCAA;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #89b492;
+  }
 `;
 
 const MyPage = () => {
   const [profile, setProfile] = useState(initialProfileState);
   const [selectedButton, setSelectedButton] = useState("my-posts");
-  const [posts, setPosts] = useState([]);
-  const [roadmap, setRoadmap] = useState([]);
+  const [contents, setContents] = useState([]);
   const navigate = useNavigate();
+
+  // 세션에서 사용자 데이터 가져오기
+  const userData = JSON.parse(sessionStorage.getItem('user'));
+  const userId = userData ? userData.data.id : null;
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -148,12 +182,13 @@ const MyPage = () => {
     } else if (selectedButton === "my-roadmap") {
       fetchMyRoadmap();
     }
-  }, [selectedButton]);
+  }, [selectedButton, userId]);
 
   const fetchMyPosts = async () => {
     try {
-      const response = await axios.get("https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/user/?community=1");
-      setPosts(response.data.data);
+      if (!userId) return; // userId가 없으면 요청하지 않음
+      const response = await axios.get(`https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/user/?community=${userId}`);
+      setContents(response.data.data);
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
@@ -161,13 +196,15 @@ const MyPage = () => {
 
   const fetchMyRoadmap = async () => {
     try {
-      const response = await axios.get("https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/user/?place=1");
-      setRoadmap(response.data.data);
+      if (!userId) return; // userId가 없으면 요청하지 않음
+      const response = await axios.get(`https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/user/?place=${userId}`);
+      console.log(response.data); // 응답 데이터를 콘솔에 출력
+      setContents(response.data.data);
     } catch (error) {
       console.error("Error fetching roadmap:", error);
     }
   };
-
+  
   const handleButtonClick = (buttonName) => {
     setSelectedButton(buttonName);
   };
@@ -179,31 +216,33 @@ const MyPage = () => {
     navigate("/intro");
   };
 
+  const handleEditRegion = () => {
+    // 지역 정보 수정 페이지로 이동
+    navigate("/info-region");
+  };
+
   return (
     <>
-      <Title>
-        <Blank></Blank>
-        <TitleDiv>
-          <span>마이페이지</span>
+      <Title> 
+        <Blank/>
+        <TitleDiv>&nbsp; &nbsp; &nbsp; <LogoImage src={logo} alt="Logo" /><span>마이페이지</span>
         </TitleDiv>
-        <div>
+        <ExtraButton>
           <LogoutBtn onClick={handleLogout}>로그아웃</LogoutBtn>
-        </div>
+        </ExtraButton>
       </Title>
 
       <ProfileWrapper>
-        <ProfileImage src={profile.profileImage} alt="Profile" />
+        <ProfileImage src={profile.profileImage || "https://i.namu.wiki/i/zw-3hri_NINFShw4KfHezUemGvkhgHMYjfuXpYx7PhcOcpPdZCSaWK_H9HNAKm99TrALzQ_3XCmJGwpYQUX_vJ5tnZ-Am9gvK2CGNBNOQn-UNfV-NLwOn_RaaOtIQKLQ0X1Ql8hpM0SuhkyErHBhfw.webp"} alt="Profile" />
         <UserInfoWrapper>
           <ResidentInfo>{profile.region1} 주민</ResidentInfo>
-          <UserName>{profile.username}</UserName>
+          <UserName>{profile.username.split('@')[0]}</UserName>
         </UserInfoWrapper>
+        <EditRegionButton onClick={handleEditRegion}>지역 수정</EditRegionButton>
       </ProfileWrapper>
 
       <ButtonContainer>
-        <SlidingButton
-          active={selectedButton === "my-posts"}
-          onClick={() => handleButtonClick("my-posts")}
-        >
+        <SlidingButton active={selectedButton === "my-posts"} onClick={() => handleButtonClick("my-posts")}>
           내 게시물
         </SlidingButton>
         <SlidingButton
@@ -215,26 +254,14 @@ const MyPage = () => {
       </ButtonContainer>
 
       <ContentBox2>
-        {selectedButton === "my-posts" && posts.length > 0 ? (
-          posts.map((post) => (
-            <Link key={post.id} to={`/feed-info/${post.id}`}>
+        {contents.length > 0 ? (
+          contents.map((content) => (
+            <Link key={content.id} to={selectedButton === "my-posts" ? `/feed-info/${content.id}` : `/place-info/${content.id}`}>
               <div style={{ display: "flex" }}>
                 <ContentImg src="/" alt="content" />
                 <div>
-                  <h3>{post.subject}</h3>
-                  <p>{post.content}</p>
-                </div>
-              </div>
-            </Link>
-          ))
-        ) : selectedButton === "my-roadmap" && roadmap.length > 0 ? (
-          roadmap.map((place) => (
-            <Link key={place.id} to={`/place-info/${place.id}`}>
-              <div style={{ display: "flex" }}>
-                <ContentImg src="/" alt="content" />
-                <div>
-                  <h3>{place.name}</h3>
-                  <p>{place.content}</p>
+                  <h3>{content.subject || content.name}</h3>
+                  <p>{content.content}</p>
                 </div>
               </div>
             </Link>

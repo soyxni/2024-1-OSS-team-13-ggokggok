@@ -1,81 +1,110 @@
-import { styled } from "styled-components";
-import logo from "../../../others/img/logo-icon.png"
-import leftlogo from "../../../others/img/left-button.png"
-import { Wrapper, Title, LogoImage, TitleDiv, ExtraButton, BackButton, Blank } from "../../../styles/Styles"
-import { Link } from "react-router-dom";
-import { useState } from "react";
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import { Wrapper, Title, LogoImage, TitleDiv, BackButton } from "../../../styles/Styles";
+import logo from "../../../others/img/logo-icon.png";
+import leftlogo from "../../../others/img/left-button.png";
 import StarRating from "../../../components/starrating";
 
+const Container = styled.div`
+  padding: 20px;
+  max-height: 900px;
+  overflow-y: auto;
+`;
 
-const SubTitle = styled.h2`
-  font-size: 20px;
-  margin-left: 0px;
+const PostTitle = styled.h1`
+  font-size: 32px;
+  margin-bottom: 10px;
   text-align: left;
-  padding: 20px 0;
 `;
 
-const ContentBox = styled.div`
-  height: 143px;
-  width: 95%;
-  border: 1px solid #C9B6A9;
-  border-radius: 10px;
-  margin: 15px 0 0;
-  padding: 15px;
+const PostHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  text-align: left;
 `;
 
-const ContentBox2 = styled.div`
-  height: 550px;
+const Nickname = styled.div`
+  font-size: 18px;
+`;
+
+const TimeAgo = styled.div`
+  font-size: 18px;
+  color: grey;
+`;
+
+const PostContent = styled.div`
+  margin-bottom: 20px;
+  font-size: 23px;
+  text-align: left;
+`;
+
+const PostImage = styled.img`
   width: 100%;
-  border: 1px solid #FFFFFF;
-  margin: 15px 0 0;
-  overflow: auto;
-
-  > div {
-    font-size: 20px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #C9B6A9;
-   
-  }
-
-  h3 {
-    color: black;
-    padding: 5px 0;
-
-  }
-
-  p {
-    font-size: 14px;
-    padding: 5px 0 15px;
-  
-  }
-`;
-
-
-const ContentImg = styled.img`
-  height: 50px;
-  width: 50px;
   border-radius: 10px;
-  margin: 0 10px 0 0;
-`;
-
-const WriteBtn = styled.div`
-    border: none;
-    background-color: white;
-    color: #A3CCAA;
-    font-size: 16px;
-    font-weight: bold;
-`;  
-
-
-
-const FormContainer = styled.div`
   margin-bottom: 20px;
 `;
 
-// 입력 필드 스타일 컴포넌트
+const LocationContainer = styled.div`
+  display: flex;
+  align-items: center;
+  background-color: #f0f8f5;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  text-align: left;
+`;
+
+const LocationIcon = styled.div`
+  margin-right: 30px;
+`;
+
+const LocationText = styled.div`
+  font-size: 30px;
+
+  span {
+    font-size: 15px;
+  }
+`;
+
+const FormContainer = styled.div`
+  position: sticky;
+  bottom: 0;
+  background-color: white;
+  padding-top: 10px;
+`;
+
+const CommentSection = styled.div`
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+`;
+
+const CommentTitle = styled.h2`
+  font-size: 20px;
+  margin-bottom: 10px;
+  text-align: left;
+`;
+
+const Comment = styled.div`
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  justify-content: space-between;
+`;
+
+const CommentContent = styled.div`
+  font-size: 16px;
+`;
+
+const CommentTime = styled.div`
+  font-size: 14px;
+  color: grey;
+`;
+
 const InputField = styled.input`
   width: 100%;
   padding: 10px;
@@ -85,165 +114,303 @@ const InputField = styled.input`
   box-sizing: border-box;
 `;
 
-// 버튼 스타일 컴포넌트
-const Button = styled.input`
+const TextAreaField = styled.textarea`
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  resize: none;
+`;
+
+const Button = styled.button`
   display: block;
   width: 100%;
   padding: 10px;
-  background-color: #A3CCAA;
+  background-color: #a3ccaa;
   color: #fff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  `;
+`;
 
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 20px;
+`;
 
-export default function Place_info(){
+const DeleteButton = styled.button`
+  margin-left: 10px;
+`;
 
-    const [data, setData] = useState(null);
+const EditButton = styled.button`
+  margin-left: 10px;
+`;
 
-    const {id} = useParams();
+const SuccessModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
+const SuccessModalContent = styled.div`
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+`;
 
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const response = await axios.get(`https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/place/post/${parseInt(id)}/`);
-          setData(response.data.data);
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        }
-      };
+const SuccessModalButton = styled.button`
+  margin-top: 10px;
+  padding: 10px 20px;
+`;
 
-      fetchData();
-    }, [id]); 
+export default function Place_info() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [data, setData] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [comment, setComment] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState("");
+  const [editTitle, setEditTitle] = useState("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-    function formatTimestamp(timestamp) {
-      const date = new Date(timestamp);
-    
-      const year = date.getFullYear();
-      const month = (date.getMonth() + 1).toString().padStart(2, "0");
-      const day = date.getDate().toString().padStart(2, "0");
-      const hours = date.getHours().toString().padStart(2, "0");
-      const minutes = date.getMinutes().toString().padStart(2, "0");
-      const seconds = date.getSeconds().toString().padStart(2, "0");
-    
-      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-    }
-
-
-    const [getData, setGetData] = useState([]);
-
-    async function fetchData() {
-        try {
-          const response = await axios.get(`https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/place/comments/${parseInt(id)}/`);
-          setGetData(response.data.data);
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        }
-    }
-
-    useEffect(() => {fetchData(); console.log(data )}, []);
-
-    const [comment, setcomment] = useState([]);
-
-    const onChange = (e) => {
-      setcomment(e.target.value);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/place/post/${parseInt(id)}/`);
+        setData(response.data.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
     };
+    fetchData();
 
-    const onSubmit = async (e) => {
-      e.preventDefault();
-      setcomment('');
-      const currentDate = new Date().toISOString();
-      const postData = 
-      {
-            "content": comment,
-          // "create_date": currentDate,
-            "post": parseInt(id),
-            "author": userId(),
-          
-        
-      };
-      console.log(postData);
-  
-      axios.post(`https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/place/comments/${id}/`, postData)
-      .then(response => {
-        console.log('Post successful:', response.data);
-      })
-      .catch(error => {
-        console.error('Error posting:', error);
-      });
-      
+    const fetchComments = async () => {
+      try {
+        const response = await axios.get(`https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/place/comments/${parseInt(id)}/`);
+        setComments(response.data.data);
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+      }
     };
-  
-    function userId() {
-      const sessionData = sessionStorage.getItem('user');
-      if (sessionData) {
-        try {
-          const userData = JSON.parse(sessionData);
-          return parseInt(userData.data.id);
-        } catch (error) {
-          console.error('Error parsing session data:', error);
-          return null;
-        }
-      } else {
-        console.error('Session data not found.');
+    fetchComments();
+  }, [id]);
+
+  const formatTimeAgo = (timestamp) => {
+    const now = new Date();
+    const date = new Date(timestamp);
+    const diff = now - date;
+    const minutes = Math.floor(diff / (1000 * 60));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (minutes < 1) return "방금 전";
+    if (minutes < 60) return `${minutes}분 전`;
+    if (hours < 24) return `${hours}시간 전`;
+    return `${days}일 전`;
+  };
+
+  const getUserId = () => {
+    const sessionData = sessionStorage.getItem('user');
+    if (sessionData) {
+      try {
+        const userData = JSON.parse(sessionData);
+        return parseInt(userData.data.id);
+      } catch (error) {
+        console.error('Error parsing session data:', error);
         return null;
       }
+    } else {
+      console.error('Session data not found.');
+      return null;
     }
+  };
 
+  const handleCommentChange = (e) => {
+    setComment(e.target.value);
+  };
 
-    return (
-        <Wrapper>
-          <Title>
-            <div><BackButton><img src={leftlogo}/></BackButton></div>
-            <TitleDiv><LogoImage src={logo} alt="Logo" /><span>우리 지역</span></TitleDiv>
-          </Title>            
-            <SubTitle>
-            <h2>우리 지역 소식</h2>
-              <ContentBox2>
-                {data ? (
-                  <div>
-                    <h1>{data.title}</h1><br></br>
-                    <h1>{data.address}</h1><br></br>
-                    <StarRating 
-                      totalStars={5} 
-                      selectedStars={data.review}
-                    />
-                    <h3>{formatTimestamp(data.create_date)}</h3><br></br>       
-                    <h2>{data.content}</h2>       
-                  </div>   
-                ): (<></>)}
+  const handleSubmitComment = async (e) => {
+    e.preventDefault();
+    const postData = {
+      content: comment,
+      post: parseInt(id),
+      author: getUserId()
+    };
+    try {
+      await axios.post(`https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/place/comments/${id}/`, postData);
+      setComment("");
+      fetchComments(); // Reload comments
+    } catch (error) {
+      console.error('Error posting comment:', error);
+    }
+  };
 
+  const handleDeletePost = async () => {
+    try {
+      await axios.delete(`https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/place/post/${parseInt(id)}/`, {
+        data: { 
+          post_id: parseInt(id),
+          author: getUserId()
+        }
+      });
+      setShowSuccessModal(true); // Show success modal
+    } catch (error) {
+      console.error('Error deleting post:', error);
+    }
+  };
 
-                <FormContainer>
-                  <form onSubmit={onSubmit}>
-                    <InputField
-                      required
-                      maxLength={100}
-                      onChange={onChange}
-                      value={comment}
-                      placeholder="댓글을 입력해주세요"
-                    />
-                    <Button type="submit" value={"등록"} />
-                  </form>
-                </FormContainer>
+  const handleEditPost = () => {
+    setIsEditing(true);
+    setEditTitle(data.subject);
+    setEditContent(data.content);
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      const postData = {
+        subject: editTitle,
+        content: editContent,
+        lat: data.lat,
+        long: data.long,
+        address: data.address,
+        name: data.name,
+        public: data.public,
+        review: data.review,
+        category: data.category,
+        author: data.author,
+      };
+      const response = await axios.put(`https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/place/post/${parseInt(id)}/`, postData);
+      setIsEditing(false);
+      setData(response.data); // Update data
+      setShowSuccessModal(true); // Show success modal
+    } catch (error) {
+      if (error.response) {
+        console.error('Server responded with error:', error.response.data);
+      } else {
+        console.error('Error saving edited post:', error);
+      }
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+  };
+
+  const handleCloseModal = () => {
+    setShowSuccessModal(false);
+    navigate('/');
+  };
+
+  const userInfo = () => {
+    const session = sessionStorage.getItem('user');
+    const user = JSON.parse(session);
+    return user.data;
+  }
+
+  return (
+    <Wrapper>
+      <Title>
+        <TitleDiv><LogoImage src={logo} alt="Logo" /><span>우리 지역</span></TitleDiv>
+      </Title>
+      <Container>
+        {data && (
+          <>
+            {isEditing ? (
+              <>
+                <InputField
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  placeholder="제목"
+                />
+                <TextAreaField
+                  value={editContent}
+                  onChange={(e) => setEditContent(e.target.value)}
+                  placeholder="내용"
+                  rows="10"
+                />
+                {data.author == userInfo().id ?
+                <ButtonContainer>
+                  <Button onClick={handleSaveEdit}>저장</Button>
+                  <Button onClick={handleCancelEdit}>취소</Button>
+                </ButtonContainer>
+                : <></>}
+              </>
+            ) : (
+              <>
+                <PostTitle>{data.subject}
+                {data.author == userInfo().id ?
+                  <EditButton onClick={handleEditPost}>수정</EditButton>
+                : <></>}
+                {data.author == userInfo().id ?
+                  <DeleteButton onClick={handleDeletePost}>삭제</DeleteButton>
+                : <></>}
                 
-                {<h1>댓글</h1>}
-                {getData.length > 0 ? (
-                        getData.map((data) => (
-                            <div style={{display: 'flex'}}>
-                                <div>
-                                    <h3>{data.content}</h3>
-                                    <p>{formatTimestamp(data.create_date)}</p>
-                                </div>
-                            </div>
-                    ))): (<></>)}
-
-
-                </ContentBox2>
-            </SubTitle>
-        </Wrapper>
-    );
+                </PostTitle>
+                <PostHeader>
+                  <Nickname></Nickname>
+                  <TimeAgo>{formatTimeAgo(data.create_date)}</TimeAgo>
+                </PostHeader>
+                <LocationContainer>
+                  <LocationIcon>
+                    <LocationText>
+                      📍  {data.name}  <br /> 
+                      <span>{data.address}</span>
+                      <StarRating totalStars={5} selectedStars={data.review} /><br /> 
+                    </LocationText>
+                  </LocationIcon>
+                </LocationContainer>
+                <PostContent>
+                  <p>{data.content}</p>
+                  {data.image && <PostImage src={data.image} alt="Post" />}
+                </PostContent>
+              </>
+            )}
+          </>
+        )}
+        <CommentSection>
+          {comments.length > 0 && <CommentTitle>댓글</CommentTitle>}
+          {comments.map((comment) => (
+            <Comment key={comment.id}>
+              <CommentContent>{comment.content}</CommentContent>
+              <CommentTime>{formatTimeAgo(comment.create_date)}</CommentTime>
+            </Comment>
+          ))}
+        </CommentSection>
+        <FormContainer>
+          <form onSubmit={handleSubmitComment}>
+            <InputField
+              required
+              maxLength={100}
+              onChange={handleCommentChange}
+              value={comment}
+              placeholder="댓글을 입력해주세요"
+            />
+            <Button type="submit">등록</Button>
+          </form>
+        </FormContainer>
+      </Container>
+      {showSuccessModal && (
+        <SuccessModalOverlay>
+          <SuccessModalContent>
+            <h2>성공</h2>
+            <p>작업이 성공적으로 완료되었습니다.</p>
+            <SuccessModalButton onClick={handleCloseModal}>확인</SuccessModalButton>
+          </SuccessModalContent>
+        </SuccessModalOverlay>
+      )}
+    </Wrapper>
+  );
 }
+

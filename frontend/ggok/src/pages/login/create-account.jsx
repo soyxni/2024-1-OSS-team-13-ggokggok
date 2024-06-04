@@ -105,10 +105,8 @@ export default function CreateAccount() {
 
   return (
     <Wrapper>
-
-
-<Title>
-        <Blank/><Blank/><Blank/>
+        <Title>
+        <Blank/>
         <TitleDiv><LogoImage src={logo} alt="Logo" /><span>회원가입</span></TitleDiv>
 
       </Title>
@@ -118,7 +116,7 @@ export default function CreateAccount() {
             name="id"
             value={id}
             onChange={onChange}
-            placeholder="이메일"
+            placeholder="아이디"
             type="text"
             required
           />

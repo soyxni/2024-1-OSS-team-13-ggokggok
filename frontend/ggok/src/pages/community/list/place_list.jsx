@@ -71,30 +71,53 @@ const WriteBtn = styled.div`
 export default function Place_list(){
 
     const [getData, setGetData] = useState([]);
+    const [secret, setSecret] = useState(false);
+    const [secretData, setsecretData] = useState([]);
+
+
+    const session = sessionStorage.getItem('user');
+    const user = JSON.parse(session);
+    const region1 = user.data.region1;
+    const region2 = user.data.region2;
 
     async function fetchData() {
         try {
-          const response = await axios.get('https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app//place/post/');
+          const response = await axios.get(`https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/place/?address=${region1}`);
           setGetData(response.data.data);
         } catch (error) {
           console.error('Error fetching data:', error);
         }
     }
 
-    useEffect(() => {fetchData();}, []);
+    async function fetchSecret() {
+      try {
+        const response = await axios.get(`https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/place/?secret=${region1}`);
+        setGetData(response.data.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+  }
+
+    useEffect(() => {fetchData(); fetchSecret();}, []);
 
     console.log(getData);
+
+    const toggle = () => {
+      setSecret(prevState => !prevState);
+
+    };
 
 
     return (
         <Wrapper>
           <Title>
-            <div><BackButton><img src={leftlogo}/></BackButton></div>
             <TitleDiv><LogoImage src={logo} alt="Logo" /><span>우리 지역 명소</span></TitleDiv>
             <div><Link to ="/upload-place" style={{textDecoration: "none"}}><WriteBtn>명소 +</WriteBtn></Link></div>
           </Title>            
             <SubTitle>
             <h2></h2>
+            <button onClick={toggle} type="button">{secret ? "숨겨진 명소" : "전체" }</button>
+                { !secret ?
                 <div style= {{ overflow: 'auto', height: '600px' }}>
                 {getData.length > 0 ? (
                         getData.map((data) => (
@@ -102,16 +125,43 @@ export default function Place_list(){
                             style={{textDecoration: "none"}}>
                             <ContentBox>
                             <div style={{display: 'flex'}}>
-                                <ContentImg src="/"></ContentImg>
+                                {data.image ? 
+                                  <ContentImg src= {`${data.image}`}></ContentImg>
+                                :
+                                <></>
+                                }
                                 <div>
                                     <h3>{data.title}</h3>
-                                    <p>{data.content}</p>
+                                    <p>{data.content}</p>ㅈ
                                 </div>
                             </div>
                             </ContentBox>
                             </Link>
-                ))): (<></>)}
+                ))): (<h1>게시글이 없습니다</h1>)}
                 </div>
+              :
+              <div style= {{ overflow: 'auto', height: '600px' }}>
+              {secretData.length > 0 ? (
+                      secretData.map((data) => (
+                        <Link to={data ? `/feed-info/${data.id}` : "/"}
+                        style={{textDecoration: "none"}}>
+
+                          <div style={{display: 'flex'}}>
+                            {data.image ? 
+                              <ContentImg src= {`${data.image}`}></ContentImg>
+                            :
+                            <></>
+                            }
+                              <div>
+                                  <h3>{data.subject}</h3>
+                                  <p>{data.content}</p>
+                              </div>
+                          </div>
+                        </Link>
+                  ))): <h1>게시글이 없습니다</h1>}
+                </div>
+
+              }
 
             </SubTitle>
         </Wrapper>

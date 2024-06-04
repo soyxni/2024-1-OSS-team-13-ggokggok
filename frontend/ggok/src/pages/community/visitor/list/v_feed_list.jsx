@@ -2,7 +2,7 @@ import { styled } from "styled-components";
 import logo from "../../../../others/img/logo-icon.png"
 import leftlogo from "../../../../others/img/left-button.png"
 import { Wrapper, Title, LogoImage, TitleDiv, ExtraButton, BackButton } from "../../../../styles/Styles"
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useState } from "react";
 import { useEffect } from "react";
 import axios from "axios";
@@ -68,12 +68,13 @@ const WriteBtn = styled.div`
 `;  
 
 export default function V_Feed_list(){
+    const {id} = useParams();
 
     const [getData, setGetData] = useState([]);
 
     async function fetchData() {
         try {
-          const response = await axios.get('https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/community/?region=/');
+          const response = await axios.get(`https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/community/?region=${id}`);
           setGetData(response.data.data);
         } catch (error) {
           console.error('Error fetching data:', error);
@@ -88,7 +89,7 @@ export default function V_Feed_list(){
     return (
         <Wrapper>
           <Title>
-            <TitleDiv><LogoImage src={logo} alt="Logo" /><span>우리 지역</span></TitleDiv>
+            <TitleDiv><LogoImage src={logo} alt="Logo" /><span>{id} 지역 커뮤니티</span></TitleDiv>
           </Title>            
             <SubTitle>
             <h2>우리 지역 소식</h2>
@@ -99,14 +100,14 @@ export default function V_Feed_list(){
                           style={{textDecoration: "none"}}>
 
                             <div style={{display: 'flex'}}>
-                                <ContentImg src="/"></ContentImg>
+                                <ContentImg src={`${data.image}`}></ContentImg>
                                 <div>
                                     <h3>{data.subject}</h3>
                                     <p>{data.content}</p>
                                 </div>
                             </div>
                           </Link>
-                    ))): (<></>)}
+                    ))): (<h1>게시글이 없습니다</h1>)}
                 </ContentBox2>
             </SubTitle>
         </Wrapper>

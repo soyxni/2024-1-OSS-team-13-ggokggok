@@ -72,9 +72,15 @@ export default function main_feed(){
 
     const [getData, setGetData] = useState([]);
 
+    const session = sessionStorage.getItem('user');
+    const user = JSON.parse(session);
+    const region1 = user.data.region1;
+    const region2 = user.data.region2;
+
     async function fetchData() {
         try {
-          const response = await axios.get('https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/community/post/');
+          console.log(region1);
+          const response = await axios.get(`https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/community/?region=${region1}`);
           setGetData(response.data.data);
         } catch (error) {
           console.error('Error fetching data:', error);
@@ -85,7 +91,7 @@ export default function main_feed(){
 
     async function fetchPlace() {
         try {
-          const response = await axios.get('https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/place/post/');
+          const response = await axios.get(`https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/place/?address=${region1}`);
           setplace(response.data.data);
         } catch (error) {
           console.error('Error fetching data:', error);
@@ -99,7 +105,6 @@ export default function main_feed(){
     return (
         <Wrapper>
           <Title>
-            <div><BackButton><img src={leftlogo}/></BackButton></div>
             <TitleDiv><LogoImage src={logo} alt="Logo" /><span>우리 지역</span></TitleDiv>
             <div><Link to ="/upload" style={{textDecoration: "none"}}><WriteBtn>글쓰기</WriteBtn></Link></div>
           </Title>
@@ -126,7 +131,7 @@ export default function main_feed(){
                             </div>
                             </ContentBox>
                           </Link>
-                ))): (<></>)}
+                ))): (<h1>게시글이 없습니다</h1>)}
                 </div>
             </SubTitle>
             
@@ -157,7 +162,7 @@ export default function main_feed(){
                             </div>
                         </div>
                       </Link>
-                ))): (<></>)}
+                ))): (<h1>게시글이 없습니다</h1>)}
                 </ContentBox2>
             </SubTitle>
 

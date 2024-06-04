@@ -2,7 +2,7 @@ import { styled } from "styled-components";
 import logo from "../../../../others/img/logo-icon.png"
 import leftlogo from "../../../../others/img/left-button.png"
 import { Wrapper, Title, LogoImage, TitleDiv, ExtraButton, BackButton } from "../../../../styles/Styles"
-import { Link } from "react-router-dom";
+import { Link,useParams } from "react-router-dom";
 import { useState } from "react";
 import { useEffect } from "react";
 import axios from "axios";
@@ -71,36 +71,54 @@ const WriteBtn = styled.div`
 export default function V_Place_list(){
 
     const [getData, setGetData] = useState([]);
+    const {id} = useParams();
+    const [secret, setSecret] = useState(false);
+    const [secretData, setsecretData] = useState([]);
 
     async function fetchData() {
         try {
-          const response = await axios.get('https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app//place/post/');
+          const response = await axios.get(`https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/place/?address=${id}`);
           setGetData(response.data.data);
         } catch (error) {
           console.error('Error fetching data:', error);
         }
     }
 
-    useEffect(() => {fetchData();}, []);
+    async function fetchSecret() {
+      try {
+        const response = await axios.get(`https://port-0-ggokggok-1cupyg2klvrp1r60.sel5.cloudtype.app/place/?secret=${id}`);
+        setGetData(response.data.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+  }
+
+    useEffect(() => {fetchData(); fetchSecret();}, []);
 
     console.log(getData);
+
+    const toggle = () => {
+      setSecret(prevState => !prevState);
+
+    };
 
 
     return (
         <Wrapper>
           <Title>
-            <TitleDiv><LogoImage src={logo} alt="Logo" /><span>우리 지역 명소</span></TitleDiv>
+            <TitleDiv><LogoImage src={logo} alt="Logo" /><span>{id} 지역 명소</span></TitleDiv>
           </Title>            
+          <button onClick={toggle} type="button">{secret ? "숨겨진 명소" : "전체" }</button>
+          {!secret ?
             <SubTitle>
-            <h2></h2>
                 <div style= {{ overflow: 'auto', height: '600px' }}>
                 {getData.length > 0 ? (
                         getData.map((data) => (
-                            <Link to={data ? `/place-info/${data.id}` : "/"}
+                            <Link to={data ? `/visitor-place-info/${data.id}` : "/"}
                             style={{textDecoration: "none"}}>
                             <ContentBox>
                             <div style={{display: 'flex'}}>
-                                <ContentImg src="/"></ContentImg>
+                                <ContentImg src= {`${data.image}`}></ContentImg>
                                 <div>
                                     <h3>{data.title}</h3>
                                     <p>{data.content}</p>
@@ -108,10 +126,30 @@ export default function V_Place_list(){
                             </div>
                             </ContentBox>
                             </Link>
-                ))): (<></>)}
+                ))): (<h1>게시글이 없습니다</h1>)}
                 </div>
-
             </SubTitle>
+            :
+            <SubTitle>
+            <div style= {{ overflow: 'auto', height: '600px' }}>
+            {secretData.length > 0 ? (
+                    secretData.map((data) => (
+                        <Link to={data ? `/visitor-place-info/${data.id}` : "/"}
+                        style={{textDecoration: "none"}}>
+                        <ContentBox>
+                        <div style={{display: 'flex'}}>
+                            <ContentImg src= {`${data.image}`}></ContentImg>
+                            <div>
+                                <h3>{data.title}</h3>
+                                <p>{data.content}</p>
+                            </div>
+                        </div>
+                        </ContentBox>
+                        </Link>
+                ))): (<h1>게시글이 없습니다</h1>)}
+                </div>
+            </SubTitle>
+            }
         </Wrapper>
     );
 }
